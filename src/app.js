@@ -1,4 +1,5 @@
 const express = require('express');
+require('dotenv').config();
 const mongoose = require('mongoose');
 const routeClient = require('./routes/client/index.route');
 
@@ -19,7 +20,7 @@ routeClient.index(app);
 //   .catch(err => console.error('Could not connect to MongoDB:', err));
 
 // Start Server
-const PORT = 3000;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
