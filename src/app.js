@@ -1,6 +1,6 @@
 const express = require('express');
 require('dotenv').config();
-const mongoose = require('mongoose');
+const connectDB = require('./config/database');
 const routeClient = require('./routes/client/index.route');
 
 const app = express();
@@ -8,16 +8,11 @@ const app = express();
 // Middleware
 app.use(express.json());
 
+// Connect to MongoDB
+connectDB();
+
 // Routes
 routeClient.index(app);
-
-// MongoDB Connection
-// mongoose.connect('mongodb://localhost:27017/express-mvc', {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
-// })
-//   .then(() => console.log('Connected to MongoDB'))
-//   .catch(err => console.error('Could not connect to MongoDB:', err));
 
 // Start Server
 const PORT = process.env.PORT;
