@@ -3,14 +3,17 @@ const Product = require('../../models/productModel');
 class ProductService {
   async getAllProducts() {
     const products = await Product.find({ deleted: false });
-  
-      // Add new calculated field for each product
-      const updatedProducts = products.map((product) => {
-        const priceNew = (product.price * (100 - product.discountPercentage) / 100).toFixed(0);
-        return { ...product._doc, priceNew }; // Spread to ensure immutability
-      });
 
-      return updatedProducts;
+    // Add new calculated field for each product
+    const updatedProducts = products.map((product) => {
+      const priceNew = (product.price * (100 - product.discountPercentage) / 100).toFixed(0);
+      return { ...product._doc, priceNew }; // Spread to ensure immutability
+    });
+
+    return {
+      pageTitle: "Danh Sach san pham",
+      products: updatedProducts,
+    };
   }
 
   // async createUser(userData) {

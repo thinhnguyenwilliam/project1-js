@@ -1,7 +1,9 @@
 const express = require('express');
 require('dotenv').config();
 const connectDB = require('./config/database');
+const routeAdmin = require('./routes/admin/index.route');
 const routeClient = require('./routes/client/index.route');
+
 
 const app = express();
 
@@ -12,7 +14,9 @@ app.use(express.json());
 connectDB();
 
 // Routes
+routeAdmin.index(app);
 routeClient.index(app);
+
 
 // Start Server
 const PORT = process.env.PORT;
