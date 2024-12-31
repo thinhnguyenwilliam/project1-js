@@ -7,22 +7,37 @@ class ProductService {
       deleted: false,
     };
 
-    // Add status filter if provided in query parameters
-    if (queryParams.status) {
-      criteriaFilter.status = queryParams.status;
+    // Dynamically add filters based on query parameters
+    for (const key in queryParams) {
+      if (queryParams[key]) {
+        if (key === "status") {
+          criteriaFilter.status = queryParams[key];
+        } else if (key === "keyword") {
+          criteriaFilter.title = { $regex: queryParams[key], $options: "i" };
+        }
+      }
     }
 
-    // Fetch filtered products from the database
-    const updatedProducts = await Product.find(criteriaFilter);
+    const page = parseInt(queryParams.page, 10) || 1;
+    const limit = parseInt(queryParams.limit, 10) || 4;
+    const skip = (page - 1) * limit;
+
+    // Get total count of products matching the filter
+    const totalProducts = await Product.countDocuments(criteriaFilter);
+
+    // Fetch paginated and filtered products from the database
+    const updatedProducts = await Product.find(criteriaFilter)
+      .skip(skip)
+      .limit(limit);
 
     return {
       pageTitle: "Danh sách sản phẩm admin",
       products: updatedProducts,
+      totalProducts, // Total count of matching products
+      currentPage: page,
+      totalPages: Math.ceil(totalProducts / limit),
     };
-
   }
-
-
 }
 
 module.exports = new ProductService();
