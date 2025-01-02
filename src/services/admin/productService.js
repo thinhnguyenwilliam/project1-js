@@ -38,6 +38,18 @@ class ProductService {
       totalPages: Math.ceil(totalProducts / limit),
     };
   }
-}
 
+  async changeStatus(id, status) {
+    await Product.updateOne(
+      { _id: id },
+      { status: status }
+    );
+    return {
+      message: "Status updated successfully",
+    };
+  }
+  
+
+  
+}
 module.exports = new ProductService();

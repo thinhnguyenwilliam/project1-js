@@ -10,14 +10,20 @@ const app = express();
 
 // Middleware
 app.use(express.json());
+//app.use(cors()); // Enable CORS for all routes
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      const allowedOrigins = ["http://localhost:3000", "http://example.com"];
+      if (allowedOrigins.includes(origin) || !origin) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+  })
+);
 
-// Use CORS middleware
-app.use(cors({
-  origin: 'http://example.com',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true // Allow cookies or Authorization headers
-}));
 
 
 // Connect to MongoDB
