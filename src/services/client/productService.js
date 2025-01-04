@@ -1,36 +1,52 @@
 const Product = require('../../models/productModel');
 
 class ProductService {
-  async getAllProducts() {
-    const products = await Product.find({ deleted: false });
+  async getAllProducts(queryParams) {
+    const { sortField, sortOrder, page, limit } = queryParams;
 
-    // Add new calculated field for each product
-    const updatedProducts = products.map((product) => {
-      const priceNew = (product.price * (100 - product.discountPercentage) / 100).toFixed(0);
-      return { ...product._doc, priceNew }; // Spread to ensure immutability
-    });
+    // Initialize filter criteria
+    const criteriaFilter = {
+      status: "active",
+      deleted: false
+    };
+
+    // Add filtering for optional fields
+    if (queryParams.keyword) {
+      criteriaFilter.title = { $regex: queryParams.keyword, $options: 'i' };
+    }
+
+    // Pagination logic
+    const pageNumber = parseInt(page, 10) || 1;
+    const pageLimit = parseInt(limit, 10) || 10;
+    const skip = (pageNumber - 1) * pageLimit;
+
+    // Sorting logic
+    let sortOptions = {};
+    if (sortField && sortOrder) {
+      const sortFields = sortField.split(',');
+      const sortOrders = sortOrder.split(',');
+      sortFields.forEach((field, index) => {
+        sortOptions[field] = sortOrders[index] === 'desc' ? -1 : 1;
+      });
+    }
+
+    // Fetch products with criteria, pagination, and sorting
+    const products = await Product.find(criteriaFilter)
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(pageLimit);
+
+    // Total count for pagination
+    const totalCount = await Product.countDocuments(criteriaFilter);
 
     return {
-      pageTitle: "Danh Sach san pham",
-      products: updatedProducts,
+      pageTitle: "Danh Sách Sản Phẩm",
+      totalCount,
+      currentPage: pageNumber,
+      totalPages: Math.ceil(totalCount / pageLimit),
+      products,
     };
   }
-
-  // async createUser(userData) {
-  //   return await User.create(userData);
-  // }
-
-  // async getUserById(userId) {
-  //   return await User.findById(userId);
-  // }
-
-  // async updateUser(userId, updatedData) {
-  //   return await User.findByIdAndUpdate(userId, updatedData, { new: true });
-  // }
-
-  // async deleteUser(userId) {
-  //   return await User.findByIdAndDelete(userId);
-  // }
 }
 
 module.exports = new ProductService();
