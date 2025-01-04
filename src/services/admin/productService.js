@@ -49,7 +49,64 @@ class ProductService {
     };
   }
   
+  async changeMultiStatus(ids, status) {
+    // Update all products matching the IDs in the array
+    await Product.updateMany(
+      { _id: { $in: ids } }, // Match products with IDs in the array
+      { status: status }     // Update their status
+    );
+  
+    return {
+      message: "Status updated successfully for multiple products",
+    };
+  }
+  
+  // async deleteProduct(id) {
+  //   await Product.deleteOne({ _id: id }); // Hard delete
+  //   return {
+  //     message: "Product deleted successfully (hard delete)",
+  //   };
+  // }
+  
 
+  async deleteProduct(id) {
+    await Product.updateOne(
+      { _id: id },
+      { deleted: true } // Soft delete
+    );
+  
+    return {
+      message: "Product deleted successfully (soft delete)",
+    };
+  }
+
+  async deleteMultipleProducts(ids) {
+    // Soft delete: Mark products as deleted
+    await Product.updateMany(
+      { _id: { $in: ids } },
+      { deleted: true }
+    );
+  
+    return {
+      message: `${ids.length} products marked as deleted.`,
+    };
+  }
+
+  async getDeletedProducts() {
+    const deletedProducts = await Product.find({ deleted: true });
+    return {
+      pageTitle: "Recycle Bin - Deleted Products",
+      products: deletedProducts,
+    };
+  }
+
+  async restoreProduct(id) {
+    await Product.updateOne({ _id: id }, { deleted: false });
+    return {
+      message: "Product restored successfully",
+    };
+  }
+  
   
 }
 module.exports = new ProductService();
